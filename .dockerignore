@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.claude
+tasks
+README.md
+CLAUDE.md
+*.md
+Dockerfile
+.dockerignore
+docker-bake.hcl
+docker-compose.yml
