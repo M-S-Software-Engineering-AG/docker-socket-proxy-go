@@ -143,8 +143,9 @@ docker buildx bake docker-socket-proxy \
 
 ## Images
 
-Every push to `main` publishes all three platforms to
-`ghcr.io/basecrusher/docker-socket-proxy-go` after `go test ./...`
-passes. `:${VERSION}` and `:latest` both move when the image is rebuilt;
-the full commit-sha tag never is — pin to it when a deployment must keep
-running exactly what it rolled out with.
+Pull requests run `go test ./...` and build all three platforms without
+publishing. Pushing a `vX.Y.Z` git tag runs the same test and build, then
+publishes to `ghcr.io/basecrusher/docker-socket-proxy-go` with `VERSION`
+taken from the tag name. `:latest` moves on every release; `:${VERSION}`
+and the full commit-sha tag never do — pin to either when a deployment
+must keep running exactly what it rolled out with.
