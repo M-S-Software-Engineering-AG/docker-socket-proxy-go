@@ -143,10 +143,14 @@ docker buildx bake docker-socket-proxy \
 
 ## Images
 
-`ci.yml` runs on pull requests: `go test ./...`, then a build of all
-three platforms that publishes nothing. `release.yml` runs on a pushed
-`vX.Y.Z` git tag: the same test, then a bake that publishes to
+`pr.yml` runs on pull requests: `go test ./...` and a build of all
+three platforms that publishes nothing; `ci-ok` is the single required
+check. `release.yml` runs on a pushed `v*` git tag: a Trivy scan of the
+binary, then a bake that publishes to
 `ghcr.io/basecrusher/docker-socket-proxy-go` with `VERSION` taken from
-the tag name. `:latest` moves on every release; `:${VERSION}`
+the tag name, then a GitHub release. `renovate.yml` keeps dependencies
+current (automerge); `auto-release.yml` tags the next patch version once
+merged Renovate PRs settle; `daily-scan.yml` runs Trivy on the repo every
+morning. `:latest` moves on every release; `:${VERSION}`
 and the full commit-sha tag never do — pin to either when a deployment
 must keep running exactly what it rolled out with.

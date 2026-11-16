@@ -94,8 +94,11 @@ docker buildx bake docker-socket-proxy \
   (`linux/amd64`, `linux/arm64`, `linux/arm/v7`); the Dockerfile's
   `BASE_IMAGE` arg is the only difference between the normal and
   `-debug` targets.
-- `.github/workflows/build.yml` tests, then bakes and pushes to
-  `ghcr.io/basecrusher/docker-socket-proxy-go` on every push to `main`.
+- Workflows mirror `container-supervisor`: `pr.yml` (test + bake,
+  `ci-ok` gate), `release.yml` (on `v*` tag: Trivy, bake + push to
+  `ghcr.io/basecrusher/docker-socket-proxy-go`, GitHub release),
+  `renovate.yml` + `auto-release.yml` (Renovate merges → patch tag),
+  `daily-scan.yml`.
 - Any change to the build must also update `README.md` (tags, targets,
   platforms).
 
