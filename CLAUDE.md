@@ -94,11 +94,19 @@ docker buildx bake docker-socket-proxy \
   (`linux/amd64`, `linux/arm64`, `linux/arm/v7`); the Dockerfile's
   `BASE_IMAGE` arg is the only difference between the normal and
   `-debug` targets.
-- Workflows mirror `container-supervisor`: `pr.yml` (test + bake,
-  `ci-ok` gate), `release.yml` (on `v*` tag: Trivy, bake + push to
-  `ghcr.io/basecrusher/docker-socket-proxy-go`, GitHub release),
-  `renovate.yml` + `auto-release.yml` (Renovate merges → patch tag),
-  `daily-scan.yml`.
+- Releases come from `release/X.Y` branches only (same model as
+  `env2yml`): `pr.yml` (vet + test + bake, `ci-ok` gate),
+  `auto-release.yml` (push to `release/**` → `vX.Y.0` or next patch, only
+  if `*.go`/`go.mod`/`go.sum`/`Dockerfile`/`docker-bake.hcl` changed;
+  waits for pending Renovate PRs), `release.yml` (on `v*` tag: Trivy,
+  bake + push to `ghcr.io/basecrusher/docker-socket-proxy-go`, GitHub
+  release), `renovate.yml` (release branches: security only),
+  `daily-scan.yml` (main + every `release/*`).
+- `:latest` / GitHub "Latest" only for the highest tag: `release.yml`
+  passes bake `LATEST=true|false`, default `false`.
+- Builder is `golang:1.27-bookworm` + `GOTOOLCHAIN=auto`; the `go` line in
+  `go.mod` is the floor (fetched if newer than the image), so no Dockerfile
+  edit on Go bumps.
 - Any change to the build must also update `README.md` (tags, targets,
   platforms).
 

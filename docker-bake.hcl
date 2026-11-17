@@ -10,6 +10,12 @@ variable "GIT_SHA" {
   default = "dev"
 }
 
+# release.yml sets this to "true" only for the highest tag, so a patch on
+# an older release line never moves :latest backwards.
+variable "LATEST" {
+  default = "false"
+}
+
 group "default" {
   targets = ["docker-socket-proxy", "docker-socket-proxy-debug"]
 }
@@ -17,11 +23,13 @@ group "default" {
 target "docker-socket-proxy" {
   context    = "."
   dockerfile = "Dockerfile"
-  tags       = [
-    "${REGISTRY}/docker-socket-proxy-go:${VERSION}",
-    "${REGISTRY}/docker-socket-proxy-go:${GIT_SHA}",
-    "${REGISTRY}/docker-socket-proxy-go:latest",
-  ]
+  tags       = concat(
+    [
+      "${REGISTRY}/docker-socket-proxy-go:${VERSION}",
+      "${REGISTRY}/docker-socket-proxy-go:${GIT_SHA}",
+    ],
+    LATEST == "true" ? ["${REGISTRY}/docker-socket-proxy-go:latest"] : [],
+  )
   platforms  = [
     "linux/amd64",
     "linux/arm64",
@@ -34,9 +42,11 @@ target "docker-socket-proxy-debug" {
   args     = {
     BASE_IMAGE = "gcr.io/distroless/static-debian13:debug"
   }
-  tags     = [
-    "${REGISTRY}/docker-socket-proxy-go:${VERSION}-debug",
-    "${REGISTRY}/docker-socket-proxy-go:${GIT_SHA}-debug",
-    "${REGISTRY}/docker-socket-proxy-go:latest-debug",
-  ]
+  tags     = concat(
+    [
+      "${REGISTRY}/docker-socket-proxy-go:${VERSION}-debug",
+      "${REGISTRY}/docker-socket-proxy-go:${GIT_SHA}-debug",
+    ],
+    LATEST == "true" ? ["${REGISTRY}/docker-socket-proxy-go:latest-debug"] : [],
+  )
 }

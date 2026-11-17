@@ -2,11 +2,13 @@
 
 ARG BASE_IMAGE=gcr.io/distroless/static-debian13
 
-FROM --platform=$BUILDPLATFORM golang:1.27.4-bookworm AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-bookworm AS build
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 
+# go.mod sets the minimum Go version; auto fetches it if the image is older.
+ENV GOTOOLCHAIN=auto
 WORKDIR /src
 COPY go.mod ./
 RUN go mod download

@@ -120,12 +120,19 @@ docker buildx bake
 command produces all of them. `REGISTRY`, `VERSION` and `GIT_SHA` are
 bake variables — override any of them from the environment
 (`VERSION=v1.1.0 docker buildx bake`). `GIT_SHA` defaults to `dev`, so a
-local bake needs nothing; the workflow passes `github.sha`.
+local bake needs nothing; the workflow passes `github.sha`. `LATEST`
+(default `false`) adds the `:latest` tags; `release.yml` sets it to `true`
+only when the tag being released is the highest `v*` tag.
 
 | Target | Base | Tags |
 | --- | --- | --- |
-| `docker-socket-proxy` | `gcr.io/distroless/static-debian13` | `:${VERSION}`, `:${GIT_SHA}`, `:latest` |
+| `docker-socket-proxy` | `gcr.io/distroless/static-debian13` | `:${VERSION}`, `:${GIT_SHA}`, `:latest` (highest release only) |
 | `docker-socket-proxy-debug` | `…:debug` (busybox shell for `docker exec`) | same, `-debug` suffixed |
+
+The builder image is `golang:1.27-bookworm` with `GOTOOLCHAIN=auto`, so the
+`go` line in `go.mod` is the minimum Go version: a newer `go.mod` makes the
+build fetch that toolchain, a newer image patch is used as is. No Dockerfile
+edit on a Go patch bump.
 
 Platforms: `linux/amd64`, `linux/arm64`, `linux/arm/v7`. The build stage
 runs on `$BUILDPLATFORM` and cross-compiles with `CGO_ENABLED=0`, so
@@ -143,14 +150,23 @@ docker buildx bake docker-socket-proxy \
 
 ## Images
 
-`pr.yml` runs on pull requests: `go test ./...` and a build of all
-three platforms that publishes nothing; `ci-ok` is the single required
-check. `release.yml` runs on a pushed `v*` git tag: a Trivy scan of the
-binary, then a bake that publishes to
-`ghcr.io/basecrusher/docker-socket-proxy-go` with `VERSION` taken from
-the tag name, then a GitHub release. `renovate.yml` keeps dependencies
-current (automerge); `auto-release.yml` tags the next patch version once
-merged Renovate PRs settle; `daily-scan.yml` runs Trivy on the repo every
-morning. `:latest` moves on every release; `:${VERSION}`
-and the full commit-sha tag never do — pin to either when a deployment
-must keep running exactly what it rolled out with.
+Releases are cut from `release/X.Y` branches; `main` never releases.
+
+`pr.yml` runs on pull requests to `main` and `release/**`: `go vet`,
+`go test ./...` and a build of all three platforms that publishes nothing;
+`ci-ok` is the single required check. `auto-release.yml` runs on every
+push to `release/**`: a new `release/X.Y` gets `vX.Y.0`, an existing line
+gets the next patch — only when `*.go` (not tests), `go.mod`, `go.sum`,
+`Dockerfile` or `docker-bake.hcl` changed since the line's last tag;
+Renovate merges wait until the branch's other Renovate PRs settle.
+`release.yml` runs on the pushed `v*` tag: a Trivy scan of the binary, a
+bake that publishes to `ghcr.io/basecrusher/docker-socket-proxy-go` with
+`VERSION` taken from the tag name, then a GitHub release with notes since
+the previous tag. `renovate.yml` keeps `main` current and sends only
+security fixes to `release/*` (automerge). `daily-scan.yml` runs Trivy
+on `main` and every `release/*` branch every morning.
+
+`:latest` and the GitHub "Latest" release move only when the released tag
+is the highest one, so a patch on an older line never rolls them back.
+`:${VERSION}` and the full commit-sha tag never move — pin to either when
+a deployment must keep running exactly what it rolled out with.
