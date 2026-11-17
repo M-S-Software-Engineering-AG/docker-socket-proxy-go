@@ -96,7 +96,7 @@ docker buildx bake docker-socket-proxy \
   `-debug` targets.
 - Releases come from `release/X.Y` branches only (same model as
   `env2yml`): `pr.yml` (vet + test + bake, `ci-ok` gate),
-  `auto-release.yml` (push to `release/**` → `vX.Y.0` or next patch, only
+  `auto-tag.yml` (push to `release/**` → `vX.Y.0` or next patch, only
   if `*.go`/`go.mod`/`go.sum`/`Dockerfile`/`docker-bake.hcl` changed;
   waits for pending Renovate PRs), `release.yml` (on `v*` tag: Trivy,
   bake + push to `ghcr.io/basecrusher/docker-socket-proxy-go`, GitHub

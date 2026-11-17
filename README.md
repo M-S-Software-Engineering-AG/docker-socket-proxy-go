@@ -154,7 +154,7 @@ Releases are cut from `release/X.Y` branches; `main` never releases.
 
 `pr.yml` runs on pull requests to `main` and `release/**`: `go vet`,
 `go test ./...` and a build of all three platforms that publishes nothing;
-`ci-ok` is the single required check. `auto-release.yml` runs on every
+`ci-ok` is the single required check. `auto-tag.yml` runs on every
 push to `release/**`: a new `release/X.Y` gets `vX.Y.0`, an existing line
 gets the next patch — only when `*.go` (not tests), `go.mod`, `go.sum`,
 `Dockerfile` or `docker-bake.hcl` changed since the line's last tag;
