@@ -1,5 +1,5 @@
 variable "REGISTRY" {
-  default = "ghcr.io/basecrusher"
+  default = "ghcr.io/m-s-software-engineering-ag"
 }
 
 variable "VERSION" {

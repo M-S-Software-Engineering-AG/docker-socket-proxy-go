@@ -95,11 +95,11 @@ docker buildx bake docker-socket-proxy \
   `BASE_IMAGE` arg is the only difference between the normal and
   `-debug` targets.
 - Releases come from `release/X.Y` branches only (same model as
-  `env2yml`): `pr.yml` (vet + test + bake, `ci-ok` gate),
+  `env2yml`; all workflows call `M-S-Software-Engineering-AG/ci-workflows@main`): `ci.yml` (vet + test + bake, `ci-ok` gate),
   `auto-tag.yml` (push to `release/**` → `vX.Y.0` or next patch, only
   if `*.go`/`go.mod`/`go.sum`/`Dockerfile`/`docker-bake.hcl` changed;
   waits for pending Renovate PRs), `release.yml` (on `v*` tag: Trivy,
-  bake + push to `ghcr.io/basecrusher/docker-socket-proxy-go`, GitHub
+  bake + push to `ghcr.io/m-s-software-engineering-ag/docker-socket-proxy-go`, GitHub
   release), `renovate.yml` (release branches: security only),
   `daily-scan.yml` (main + every `release/*`).
 - `:latest` / GitHub "Latest" only for the highest tag: `release.yml`

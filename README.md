@@ -97,7 +97,7 @@ docker run --rm -d --name dsp \
   -v /var/run/docker.sock:/var/run/docker.sock:ro \
   -e CONTAINERS=true -e PING=true -e VERSION=true \
   -p 127.0.0.1:2375:2375 \
-  ghcr.io/basecrusher/docker-socket-proxy-go:latest
+  ghcr.io/m-s-software-engineering-ag/docker-socket-proxy-go:latest
 ```
 
 Then:
@@ -152,15 +152,15 @@ docker buildx bake docker-socket-proxy \
 
 Releases are cut from `release/X.Y` branches; `main` never releases.
 
-`pr.yml` runs on pull requests to `main` and `release/**`: `go vet`,
+`ci.yml` runs on pull requests to `main` and `release/**`: `go vet`,
 `go test ./...` and a build of all three platforms that publishes nothing;
 `ci-ok` is the single required check. `auto-tag.yml` runs on every
 push to `release/**`: a new `release/X.Y` gets `vX.Y.0`, an existing line
 gets the next patch — only when `*.go` (not tests), `go.mod`, `go.sum`,
 `Dockerfile` or `docker-bake.hcl` changed since the line's last tag;
 Renovate merges wait until the branch's other Renovate PRs settle.
-`release.yml` runs on the pushed `v*` tag: a Trivy scan of the binary, a
-bake that publishes to `ghcr.io/basecrusher/docker-socket-proxy-go` with
+`release.yml` runs on the pushed `v*` tag: a Trivy scan of the image, a
+bake that publishes to `ghcr.io/m-s-software-engineering-ag/docker-socket-proxy-go` with
 `VERSION` taken from the tag name, then a GitHub release with notes since
 the previous tag. `renovate.yml` keeps `main` current and sends only
 security fixes to `release/*` (automerge). `daily-scan.yml` runs Trivy
